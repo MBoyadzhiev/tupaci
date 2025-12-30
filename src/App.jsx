@@ -33,17 +33,21 @@ function App() {
         const scores = await fetchLiveScores();
         setLiveScores(scores);
         
-        // TEST: Log live match data to console
+        // Log live match data to console (for debugging)
         console.log('=== LIVE MATCH DATA ===');
-        console.log('All scores:', scores);
+        console.log('All scores:', JSON.stringify(scores, null, 2));
         Object.keys(scores).forEach(matchId => {
           const matchData = scores[matchId];
-          console.log(`Match ${matchId}:`, matchData);
           if (matchData && matchData.isLive) {
             console.log(`✓ LIVE: ${matchId}`, {
               score: `${matchData.home}-${matchData.away}`,
               elapsed: `${matchData.elapsed}'`,
               status: matchData.statusLong || matchData.statusShort,
+            });
+          } else {
+            console.log(`○ ${matchId}:`, {
+              score: `${matchData?.home || 0}-${matchData?.away || 0}`,
+              isLive: matchData?.isLive || false,
             });
           }
         });
