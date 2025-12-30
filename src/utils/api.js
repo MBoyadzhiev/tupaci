@@ -23,10 +23,18 @@ const TEAM_IDS = {
 // Premier League competition ID
 const PREMIER_LEAGUE_ID = 2021; // Premier League
 
-// Use proxy in development to avoid CORS, direct API in production
-const API_BASE_URL = import.meta.env.DEV 
-  ? '/api'  // Vite proxy in development
-  : 'https://api.football-data.org/v4';  // Direct API in production
+// Helper function to get API URL
+// Development: Use Vite proxy
+// Production: Use Vercel serverless function
+function getApiUrl(endpoint) {
+  if (import.meta.env.DEV) {
+    // Development: Use Vite proxy
+    return `/api${endpoint}`;
+  } else {
+    // Production: Use Vercel serverless function
+    return `/api/proxy?endpoint=${encodeURIComponent(endpoint.replace(/^\//, ''))}`;
+  }
+}
 
 /**
  * Fetch live scores from football-data.org
@@ -48,11 +56,11 @@ export async function fetchLiveScores() {
   try {
     // Step 1: Try live matches endpoint first
     const liveResponse = await fetch(
-      `${API_BASE_URL}/matches?status=LIVE`,
+      getApiUrl('/matches?status=LIVE'),
       {
-        headers: {
+        headers: import.meta.env.DEV ? {
           'X-Auth-Token': API_KEY,
-        },
+        } : {},
       }
     );
 
@@ -121,11 +129,11 @@ async function fetchTodayMatches(API_KEY) {
     
     // Fetch Premier League matches for today
     const response = await fetch(
-      `${API_BASE_URL}/competitions/${PREMIER_LEAGUE_ID}/matches?dateFrom=${today}&dateTo=${today}`,
+      getApiUrl(`/competitions/${PREMIER_LEAGUE_ID}/matches?dateFrom=${today}&dateTo=${today}`),
       {
-        headers: {
+        headers: import.meta.env.DEV ? {
           'X-Auth-Token': API_KEY,
-        },
+        } : {},
       }
     );
 
@@ -183,11 +191,11 @@ export async function fetchMatchData() {
   try {
     // Try live matches first
     const liveResponse = await fetch(
-      `${API_BASE_URL}/matches?status=LIVE`,
+      getApiUrl('/matches?status=LIVE'),
       {
-        headers: {
+        headers: import.meta.env.DEV ? {
           'X-Auth-Token': API_KEY,
-        },
+        } : {},
       }
     );
 
@@ -222,11 +230,11 @@ async function fetchTodayMatchData(API_KEY) {
     const today = new Date().toISOString().split('T')[0];
     
     const response = await fetch(
-      `${API_BASE_URL}/competitions/${PREMIER_LEAGUE_ID}/matches?dateFrom=${today}&dateTo=${today}`,
+      getApiUrl(`/competitions/${PREMIER_LEAGUE_ID}/matches?dateFrom=${today}&dateTo=${today}`),
       {
-        headers: {
+        headers: import.meta.env.DEV ? {
           'X-Auth-Token': API_KEY,
-        },
+        } : {},
       }
     );
 
