@@ -1,0 +1,96 @@
+.standings {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.standings-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #333;
+  text-align: center;
+}
+
+.standings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.standings-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.standings-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.standings-rank {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a73e8;
+  min-width: 30px;
+}
+
+.standings-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #e0e0e0;
+}
+
+.standings-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.standings-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.standings-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+.match-points {
+  font-size: 14px;
+  color: #34a853;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .standings-title {
+    font-size: 18px;
+  }
+  
+  .standings-item {
+    padding: 10px;
+  }
+  
+  .standings-name {
+    font-size: 14px;
+  }
+  
+  .standings-score {
+    font-size: 14px;
+  }
+}
+
