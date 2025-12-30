@@ -60,26 +60,36 @@ export function MatchCard({ match, score, fixtureData }) {
 
   // Match is live if:
   // 1. API says it's live (isLiveFromAPI), OR
-  // 2. Start time passed AND score is not 0-0
-  const matchIsLive = isLiveFromAPI || (countdown?.isLive && (score?.home > 0 || score?.away > 0));
+  // 2. Start time passed AND (score is not 0-0 OR we have elapsed time from API), OR
+  // 3. Start time passed AND statusShort indicates match is in progress
+  const hasElapsedTime = apiElapsed !== null && apiElapsed !== undefined;
+  const statusIndicatesLive = apiStatus && ['1H', 'HT', '2H', 'ET', 'P', 'BT'].includes(apiStatus);
+  const hasScore = (score?.home > 0 || score?.away > 0);
+  
+  const matchIsLive = isLiveFromAPI || 
+                      (countdown?.isLive && (hasScore || hasElapsedTime || statusIndicatesLive));
 
   // Display time/status
   let displayTime = null;
   
-  // Priority 1: Use API's elapsed time if match is live from API
-  if (isLiveFromAPI && (apiElapsed !== null && apiElapsed !== undefined)) {
+  // Priority 1: Use API's elapsed time if available (even if not marked as live)
+  if (hasElapsedTime) {
     displayTime = formatApiElapsed(apiElapsed, apiStatus);
   }
-  // Priority 2: Use calculated time if match is live (start time passed + score not 0-0)
-  else if (matchIsLive && !isLiveFromAPI) {
-    displayTime = matchTime || '0\'';
+  // Priority 2: Use API status if it indicates match is in progress
+  else if (statusIndicatesLive && apiStatus) {
+    displayTime = formatApiElapsed(null, apiStatus);
+  }
+  // Priority 3: Use calculated time if match start time passed
+  else if (countdown?.isLive && matchTime) {
+    displayTime = matchTime;
   }
 
   // Determine what to show
   let displayContent = null;
   
   // If match is live and we have display time, show live indicator
-  if ((isLiveFromAPI || matchIsLive) && displayTime) {
+  if (matchIsLive && displayTime) {
     displayContent = (
       <div className="match-time-live">
         <span className="live-indicator">●</span>
@@ -96,13 +106,28 @@ export function MatchCard({ match, score, fixtureData }) {
       </div>
     );
   }
-  // If start time passed but match not live
+  // If start time passed but match not live yet (show "Започва сега" only if very recent)
   else if (countdown && countdown.isLive && !matchIsLive) {
-    displayContent = (
-      <div className="match-countdown">
-        Започва сега
-      </div>
-    );
+    // Only show "Започва сега" if start time passed within last 5 minutes
+    const now = new Date();
+    const startTime = new Date(match.startTime);
+    const minutesSinceStart = (now - startTime) / (1000 * 60);
+    
+    if (minutesSinceStart < 5) {
+      displayContent = (
+        <div className="match-countdown">
+          Започва сега
+        </div>
+      );
+    } else {
+      // Match started but no live data yet - show calculated time or "В процес"
+      displayContent = (
+        <div className="match-time-live">
+          <span className="live-indicator">●</span>
+          {matchTime || 'В процес'}
+        </div>
+      );
+    }
   } 
   else {
     displayContent = (

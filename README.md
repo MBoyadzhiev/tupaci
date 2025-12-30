@@ -55,29 +55,32 @@ npm run build
 
 ## API Integration
 
-The app currently uses mock data. To integrate a real live score API:
+The app uses **football-data.org** API (free tier: 50 requests per minute).
 
-1. Get an API key from one of these providers:
+### Setup API Key
 
-   - [API-Football](https://www.api-football.com/) (RapidAPI)
-   - [Football-Data.org](https://www.football-data.org/)
-   - [TheSportsDB](https://www.thesportsdb.com/)
+1. Create a `.env` file in the root directory:
 
-2. Update `src/utils/api.js`:
+```bash
+VITE_FOOTBALL_DATA_KEY=your_api_key_here
+```
 
-   - Replace `fetchLiveScores()` with your API call
-   - Map the API response to match the expected format:
-     ```javascript
-     {
-       'burnley-newcastle': { home: 1, away: 2 },
-       'arsenal-aston-villa': { home: 2, away: 1 },
-       'man-utd-wolves': { home: 2, away: 0 },
-     }
-     ```
+2. Replace `your_api_key_here` with your actual API token from [football-data.org](https://www.football-data.org/)
 
-3. Add your API key (use environment variables for security):
-   - Create `.env` file: `VITE_API_KEY=your_key_here`
-   - Use in code: `import.meta.env.VITE_API_KEY`
+3. For **local development**, the `.env` file will be automatically loaded by Vite.
+
+4. For **Vercel deployment**, add the environment variable:
+   - Go to your Vercel project settings
+   - Navigate to "Environment Variables"
+   - Add: `VITE_FOOTBALL_DATA_KEY` = `your_api_key_here`
+   - Redeploy your app
+
+### API Endpoints Used
+
+- Live matches: `GET /matches?status=LIVE`
+- Today's matches: `GET /competitions/2021/matches?dateFrom={today}&dateTo={today}`
+
+The app automatically fetches live scores every 60 seconds.
 
 ## Deployment to Vercel
 
